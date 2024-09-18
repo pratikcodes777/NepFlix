@@ -1,0 +1,304 @@
+{% extends 'base.html' %}
+{% block content %}
+<body>
+    <style>
+        .video-details {
+            margin-top: 80px;
+            padding: 30px;
+            background-color: #f8f9fa;
+            border-radius: 10px;
+        }
+
+        .video-container {
+            position: relative;
+            padding-bottom: 56.25%; /* 16:9 aspect ratio */
+            height: 0;
+            overflow: hidden;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            border-radius: 10px;
+        }
+
+        .video-container video {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            border-radius: 10px;
+        }
+
+        .video-info {
+            padding: 20px 0;
+        }
+
+        .video-title {
+            font-size: 2rem;
+            font-weight: 700;
+            color: #343a40;
+            margin-bottom: 20px;
+        }
+
+        .video-description {
+            font-size: 1rem;
+            line-height: 1.7;
+            margin-bottom: 20px;
+            color: #495057;
+        }
+
+        .video-meta {
+            font-size: 1rem;
+            color: #6c757d;
+        }
+
+        .rating {
+            font-size: 1.8rem;
+            color: #f39c12;
+        }
+
+        .back-button {
+            display: inline-block;
+            margin-bottom: 20px;
+            background-color: #007bff;
+            color: white;
+            padding: 10px 20px;
+            border-radius: 5px;
+            font-weight: 600;
+            transition: background-color 0.3s ease;
+            text-decoration: none;
+        }
+
+        .back-button:hover {
+            background-color: #0056b3;
+        }
+
+        .review {
+            background-color: #ffffff;
+            padding: 15px;
+            border-radius: 8px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+            margin-bottom: 20px;
+        }
+
+        .review strong {
+            font-size: 1.2rem;
+            color: #343a40;
+        }
+
+        .review small {
+            color: #6c757d;
+        }
+
+        .review p {
+            color: #495057;
+            margin-bottom: 5px;
+        }
+
+        .user-review-section {
+            background-color: #f1f3f5;
+            padding: 30px;
+            border-radius: 10px;
+            margin-top: 30px;
+        }
+
+        .btn-primary {
+            background-color: #007bff;
+            border: none;
+            transition: background-color 0.3s ease;
+        }
+
+        .btn-primary:hover {
+            background-color: #0056b3;
+        }
+
+        hr {
+            border: 0.5px solid #dee2e6;
+        }
+    </style>
+
+    <!-- Video Details Section -->
+    <div class="container video-details">
+     {% include 'messages.html' %}
+        <a href="{% url 'home' %}" class="back-button">← Back to Videos</a>
+        
+        <div class="row">
+            <div class="col-lg-8">
+                <div class="video-container">
+                    <video id="video" width="100%" controls>
+                        <source src="{{ video.video_file.url }}" type="video/mp4">
+                        Your browser does not support the video tag.
+                    </video>
+                </div>
+            </div>
+            <div class="col-lg-4">
+                <div class="video-info">
+                    <h2 class="video-title">{{ video.title }}</h2>
+                    <div class="rating">
+                        {% for _ in "12345"|slice:":5" %}
+                            {% if forloop.counter <= full_stars %}
+                                <i class="fa fa-star" style="color: #f39c12;"></i>
+                            {% elif forloop.counter == full_stars|add:1 and half_stars %}
+                                <i class="fa fa-star-half-o" style="color: #f39c12;"></i>
+                            {% else %}
+                                <i class="fa fa-star-o" style="color: #f39c12;"></i>
+                            {% endif %}
+                        {% endfor %}
+                        ({{ average_rating|floatformat:1 }})
+                    </div>
+                    
+                    
+                    
+                    
+                    <p class="video-meta">
+                        <strong>Category:</strong> {{ video.category }} <br>
+                        <strong>Duration:</strong> {{ video.duration }} mins <br>
+                        <strong>Release Date:</strong> {{ video.release_date }}
+                    </p>
+                    <p class="video-description">{{ video.description }}</p>
+                </div>
+                <a href="{% url 'update_video' video.slug %}" class="btn btn-primary">Update</a>
+                <a href="{% url 'delete_video' video.slug %}" class="btn btn-danger">Delete Video</a>
+                <a href="{% url 'add_video_to_playlist' video.slug %}" class="btn btn-secondary playlist-button">Add to Playlist</a>
+                <p>{{video.watch_count}}</p>
+            </div>
+        </div>
+
+        <!-- User Review Section -->
+        <div class="row user-review-section">
+            <div class="col-lg-8">
+                <h3>Your Review</h3>
+                <form id="reviewForm" method="post">
+                    {% csrf_token %}
+                    {{ form.as_p }}
+                    <button type="submit" class="btn btn-primary mt-3">Submit Review</button>
+                </form>
+            </div>
+        </div>
+
+       <!-- Reviews Section -->
+        <div class="row mt-5">
+            <div class="col-lg-8">
+                <h3>All Reviews</h3>
+                <div id="reviews-list">
+                    {% for review in reviews %}
+                        {% include 'videos/review_item.html' %}
+                    {% empty %}
+                        <p>No reviews yet. Be the first to leave a review!</p>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+
+
+    </div>
+</body>
+
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const videoElement = document.getElementById('video');
+        let hasSentRequest = false;
+    
+        videoElement.addEventListener('loadedmetadata', function() {
+            const videoDuration = videoElement.duration;
+            
+            videoElement.addEventListener('timeupdate', function() {
+                if (videoElement.currentTime / videoDuration >= 0.3 && !hasSentRequest) {
+                    hasSentRequest = true;
+                    fetch("{% url 'increment_watch_count' slug=video.slug %}", {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-CSRFToken': '{{ csrf_token }}'
+                        }
+                    }).then(response => response.json())
+                      .then(data => {
+                          if (data.status === 'success') {
+                              console.log('Watch count incremented successfully');
+                          } else {
+                              console.log('Failed to increment watch count');
+                          }
+                      }).catch(error => {
+                          console.error('Error:', error);
+                      });
+                }
+            });
+        });
+    });
+
+    document.addEventListener('DOMContentLoaded', function() {
+        const reviewForm = document.getElementById('reviewForm');
+        
+        reviewForm.addEventListener('submit', function(event) {
+            event.preventDefault();  
+
+            const formData = new FormData(reviewForm);
+
+            fetch("{% url 'video_details' video.slug %}", {
+                method: 'POST',
+                body: formData,
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest', 
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.status === 'success') {
+                    // Append new review purano review ma
+                    document.getElementById('reviews-list').innerHTML += data.review_html;
+                    // Reset form
+                    reviewForm.reset();
+                } else {
+                    console.log('Form validation errors:', data.errors);
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+            });
+        });
+    });
+
+
+    document.addEventListener('DOMContentLoaded', function() {
+    const videoPlayer = document.getElementById('video');
+    const videoId = "{{ video.id }}";
+    let hasSentCompleteProgress = false;
+    let lastSavedTime = 0;
+
+    videoPlayer.ontimeupdate = function() {
+        const currentTime = videoPlayer.currentTime;
+        const videoDuration = videoPlayer.duration;
+
+        if (currentTime > videoDuration * 0.9 && !hasSentCompleteProgress) {
+            saveProgress(videoDuration);
+            hasSentCompleteProgress = true;
+        } else if (Math.floor(currentTime) % 60 === 0 && Math.floor(currentTime) !== lastSavedTime) {
+            saveProgress(currentTime);
+            lastSavedTime = Math.floor(currentTime);
+        }
+    };
+
+    function saveProgress(currentTime) {
+        fetch("{% url 'save_progress' video.id %}", {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': '{{ csrf_token }}',
+            },
+            body: JSON.stringify({ 'current_position': currentTime })
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.status === 'success') {
+                console.log('Progress saved:', currentTime);
+            } else {
+                console.log('Failed to save progress');
+            }
+        })
+        .catch(error => {
+            console.error('Error saving progress:', error);
+        });
+    }
+    });
+    </script>
+    
+{% endblock content %}

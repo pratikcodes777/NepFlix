@@ -1,0 +1,114 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block content %}
+
+<style>
+    #img-size {
+        width: 100%;
+        height: 180px; 
+        object-fit: cover;
+    }
+    
+    .carousel-item img {
+        max-height: 400px; 
+        object-fit: cover;
+    }
+    
+    .card-img {
+        height: 180px; 
+        object-fit: cover;
+    }
+
+    .card-small {
+        max-width: 18rem; 
+        margin-bottom: 20px; 
+        border: 1px solid #ddd; 
+        border-radius: 8px; 
+        overflow: hidden; 
+        transition: transform 0.2s ease, box-shadow 0.2s ease; 
+    }
+
+    .card-body {
+        padding: 1rem; 
+    }
+
+    .card-footer {
+        background-color: #f8f9fa; 
+        padding: 0.5rem 1rem;
+        font-size: 0.875rem; 
+    }
+</style>
+
+<!-- Navigation -->
+<nav id="navbar" class="navbar navbar-expand-lg fixed-top navbar-dark bg-dark" aria-label="Main navigation">
+    <div class="container">
+        <!-- Image Logo -->
+        <a class="navbar-brand logo-image" href="{% url 'home' %}"><img src="{% static 'images/logo.svg' %}" alt="alternative"></a>
+        <button class="navbar-toggler p-0 border-0" type="button" id="navbarSideCollapse" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="navbar-collapse offcanvas-collapse" id="navbarsExampleDefault">
+            <ul class="navbar-nav ms-auto navbar-nav-scroll">
+                <li class="nav-item">
+                    <a class="nav-link active" aria-current="page" href="{% url 'home' %}">Home</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="{% url 'recent-videos' %}">Recently added</a>
+                </li>
+                {% if user.is_authenticated %}
+                <li class="nav-item">
+                    <a class="nav-link" href="{% url 'add-video' %}">Add Video</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="{% url 'playlist_list' %}">Playlist</a>
+                </li>
+                {% endif %}
+                {% if not user.is_authenticated %}
+                <li class="nav-item">
+                    <a class="nav-link" href="{% url 'login' %}">Login</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="{% url 'register' %}">Register</a>
+                </li>
+                {% else %}
+                <li class="nav-item">
+                    <a class="nav-link" href="{% url 'logout' %}">Logout :<small>{{request.user.username}}</small></a>
+                </li>
+                {% endif %}
+            </ul>
+            <form class="d-flex" role="search" method="get" action="{% url 'search' %}" style="margin-left: 150px;">
+                <input class="form-control me-2" type="search" name="q" placeholder="Search" aria-label="Search">
+                <button class="btn btn-outline-success" type="submit">Search</button>
+            </form>
+        </div> <!-- end of navbar-collapse -->
+    </div> <!-- end of container -->
+</nav> <!-- end of navbar -->
+
+<br> <br> <br> <br>
+
+<div class="container">
+    <h2>Recent Videos</h2>
+    <div class="row">
+        {% for video in videos %}
+        <div class="col-md-4 video-item">
+            <div class="card h-100 card-small">
+                <img src="{{ video.thumbnail.url }}" class="card-img-top card-img" alt="{{ video.title }}">
+                <div class="card-body">
+                    <a href="{% url 'video_details' video.slug %}">
+                        <h5 class="card-title"><strong>{{ video.title }}</strong></h5>
+                    </a>
+                    <p class="card-text">{{ video.description }}</p>
+                </div>
+                <div class="card-footer">
+                    <small class="text-body-secondary">Released on: {{ video.release_date|date:"Y-m-d" }}</small> <br>
+                    <small class="text-body-secondary">Duration: {{ video.duration }}</small><br>
+                    <small class="text-body-secondary">Category: {{ video.category.name }}</small> <br>
+                    <a href="{% url 'video_details' video.slug %}" class="btn btn-primary">View Details</a>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+
+{% endblock content %}

@@ -1,0 +1,15 @@
+<div class="review">
+    <strong>{{ review.user.username }}</strong>
+    <span class="rating">
+        {% for i in "12345" %}
+            {% if i|add:"0" <= review.rating %}
+                <i class="fa fa-star" style="color: #f39c12;"></i>
+            {% else %}
+                <i class="fa fa-star-o" style="color: #f39c12;"></i>
+            {% endif %}
+        {% endfor %}
+    </span>
+    <p>{{ review.comment }}</p>
+    <p><small>{{ review.created_at|date:"F d, Y H:i" }}</small></p>
+</div>
+<hr>

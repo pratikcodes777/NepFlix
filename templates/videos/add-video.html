@@ -1,0 +1,95 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block content %}
+
+<style>
+    .form-container {
+        max-width: 800px;
+        margin: 0 auto;
+        padding: 2rem;
+    }
+    
+    .form-title {
+        margin-bottom: 1.5rem;
+        font-size: 2rem;
+        font-weight: 600;
+        color: #333;
+    }
+
+    .form-control {
+        border-radius: 0.375rem;
+    }
+
+    .form-group {
+        margin-bottom: 1.5rem;
+    }
+
+    .btn-custom {
+        background-color: #007bff;
+        color: #fff;
+        border: none;
+        border-radius: 0.375rem;
+        padding: 0.75rem 1.5rem;
+        font-size: 1rem;
+        transition: background-color 0.2s;
+    }
+
+    .btn-custom:hover {
+        background-color: #0056b3;
+    }
+
+    .form-control-file {
+        border-radius: 0.375rem;
+    }
+</style>
+
+<div class="container form-container">
+    <h2 class="form-title">Add New Video</h2>
+    
+    <form method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+        <div class="form-group">
+            <label for="title">Title</label>
+            <input type="text" class="form-control" id="title" name="title" placeholder="Enter video title" required>
+        </div>
+
+        <div class="form-group">
+            <label for="description">Description</label>
+            <textarea class="form-control" id="description" name="description" rows="4" placeholder="Enter video description" required></textarea>
+        </div>
+
+        <div class="form-group">
+            <label for="video_file">Video File</label>
+            <input type="file" class="form-control-file" id="video_file" name="video_file" required>
+        </div>
+
+        <div class="form-group">
+            <label for="thumbnail">Thumbnail Image</label>
+            <input type="file" class="form-control-file" id="thumbnail" name="thumbnail" required>
+        </div>
+
+        <div class="form-group">
+            <label for="release_date">Release Date</label>
+            <input type="date" class="form-control" id="release_date" name="release_date" required>
+        </div>
+
+        <div class="form-group">
+            <label for="duration">Duration</label>
+            <input type="text" class="form-control" id="duration" name="duration" placeholder="Enter video duration (e.g., 00:45:30)" required>
+        </div>
+
+        <div class="form-group">
+            <label for="category">Category</label>
+            <select class="form-control" id="category" name="category" required>
+                <option value="" disabled selected>Select a category</option>
+                {% for category in categories %}
+                    <option value="{{ category.id }}">{{ category.name }}</option>
+                {% endfor %}
+            </select>
+        </div>
+
+        <button type="submit" class="btn btn-custom">Add Video</button>
+    </form>
+</div>
+
+{% endblock content %}

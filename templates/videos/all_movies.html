@@ -1,0 +1,10 @@
+{% load static %}
+<h1>Movies</h1>
+{% for movie in movies %}
+  <div>
+    <h2>{{ movie.title }}</h2>
+    <img src="{{ movie.thumbnail.url }}" alt="{{ movie.title }}">
+    <p>{{ movie.description }}</p>
+    <a href="{% url 'video_details' movie.slug %}">Watch Now</a>
+  </div>
+{% endfor %}

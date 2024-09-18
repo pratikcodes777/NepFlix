@@ -1,0 +1,29 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block content %}
+<div class="container">
+    <h2>Search Results</h2>
+    {% if query %}
+        <p>Showing results for: "{{ query }}"</p>
+    {% else %}
+        <p>No search query provided.</p>
+    {% endif %}
+    
+    <div class="row">
+        {% for video in videos %}
+            <div class="col-md-4">
+                <div class="card mb-4">
+                    <img src="{{ video.thumbnail.url }}" class="card-img-top" alt="{{ video.title }}">
+                    <div class="card-body">
+                        <h5 class="card-title">{{ video.title }}</h5>
+                        <p class="card-text">{{ video.description|slice:":100" }}...</p>
+                        <a href="{% url 'video_details' video.slug %}" class="btn btn-primary">View Details</a>
+                    </div>
+                </div>
+            </div>
+        {% empty %}
+            <p>No videos found.</p>
+        {% endfor %}
+    </div>
+</div>
+{% endblock content %}

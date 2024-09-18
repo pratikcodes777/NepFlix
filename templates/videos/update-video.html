@@ -1,0 +1,43 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="container">
+    <h2>Update Video</h2>
+    <form method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+        <div class="form-group">
+            <label for="title">Title</label>
+            <input type="text" id="title" name="title" value="{{ video.title }}" class="form-control" required>
+        </div>
+        <div class="form-group">
+            <label for="description">Description</label>
+            <textarea id="description" name="description" class="form-control" required>{{ video.description }}</textarea>
+        </div>
+        <div class="form-group">
+            <label for="category">Category</label>
+            <select id="category" name="category" class="form-control" required>
+                {% for category in categories %}
+                <option value="{{ category.id }}" {% if category == video.category %}selected{% endif %}>{{ category.name }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <div class="form-group">
+            <label for="release_date">Release Date</label>
+            <input type="date" id="release_date" name="release_date" value="{{ video.release_date }}" class="form-control" required>
+        </div>
+        <div class="form-group">
+            <label for="duration">Duration (hh:mm:ss)</label>
+            <input type="text" name="duration" pattern="\d{1,2}:\d{2}:\d{2}" placeholder="hh:mm:ss" required>
+
+        </div>
+        <div class="form-group">
+            <label for="video_file">Video File (Leave blank to keep the current one)</label>
+            <input type="file" id="video_file" name="video_file" class="form-control-file">
+        </div>
+        <div class="form-group">
+            <label for="thumbnail">Thumbnail (Leave blank to keep the current one)</label>
+            <input type="file" id="thumbnail" name="thumbnail" class="form-control-file">
+        </div>
+        <button type="submit" class="btn btn-primary">Update Video</button>
+    </form>
+</div>
+{% endblock content %}

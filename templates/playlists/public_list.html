@@ -1,0 +1,43 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block content %}
+{% include 'messages.html' %}
+<div class="container mt-5">
+    <h2 class="text-center mb-4">Public Playlists</h2>
+
+    <!-- Playlist Cards -->
+    <div class="row row-cols-1 row-cols-md-3 g-4">
+        {% for playlist in playlists %}
+        <div class="col">
+            <div class="card h-100">
+                <!-- Playlist image or placeholder -->
+                <img src="{% if playlist.image_file %}{{ playlist.image_file.url }}{% else %}{% static 'images/playlist-default.jpg' %}{% endif %}" 
+                     class="card-img-top img-fluid" 
+                     alt="{{ playlist.title }}" 
+                     style="height: 200px; object-fit: cover;">
+                     
+                <div class="card-body text-center">
+                    <!-- Playlist title -->
+                    <h5 class="card-title">{{ playlist.title }}</h5>
+
+                    <!-- Playlist description or count of videos -->
+                    <p class="card-text">
+                        {{ playlist.description|default:"No description available." }}
+                    </p>
+                </div>
+
+                <!-- Button to view playlist details -->
+                <div class="card-footer text-center">
+                    <p> <b>Created by : {{playlist.user.username}}</b></p> 
+                    <a href="{% url 'playlist_detail' playlist.id %}" class="btn btn-success">View Playlist</a>
+                </div>
+            </div>
+        </div>
+        {% empty %}
+        <div class="col">
+            <p class="text-center">No public playlists available at the moment.</p>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}

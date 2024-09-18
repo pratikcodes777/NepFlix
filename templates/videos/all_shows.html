@@ -1,0 +1,9 @@
+<h1>TV Shows</h1>
+{% for tv_show in shows %}
+  <div>
+    <h2>{{ tv_show.title }}</h2>
+    <img src="{{ tv_show.thumbnail.url }}" alt="{{ tv_show.title }}">
+    <p>{{ tv_show.description }}</p>
+    <a href="{% url 'video_details' tv_show.slug %}">Watch Now</a>
+  </div>
+{% endfor %}

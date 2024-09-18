@@ -1,0 +1,19 @@
+
+{% for video in videos %}
+    <div class="col video-item">
+        <div class="card h-100">
+            <img src="{{ video.thumbnail.url }}" id="img-size" class="card-img-top" alt="{{ video.title }}">
+            <div class="card-body">
+                <a href="{% url 'video_details' video.slug %}">
+                    <h5 class="card-title"><strong>{{ video.title }}</strong></h5>
+                </a>
+                <p class="card-text">{{ video.description }}</p>
+            </div>
+            <div class="card-footer">
+                <small class="text-body-secondary">Released on: {{ video.release_date|date:"Y-m-d" }}</small> <br>
+                <small class="text-body-secondary">Duration: {{ video.duration }}</small><br>
+                <small class="text-body-secondary">Category: {{ video.category.name }}</small>
+            </div>
+        </div>
+    </div>
+{% endfor %}
